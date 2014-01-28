@@ -160,7 +160,7 @@ immutable RandIntGen{T<:Integer, U<:Unsigned}
     k::U   # range length or 0 for full range
     u::U   # maximum multiple of k within the domain of U
 
-    RandIntGen(a::T, k::U) = new(a, k, k == 0 ? k : div(typemax(U),k)*k)
+    RandIntGen(a::T, k::U) = new(a, k, div(typemax(U),k + (k==0))*k)
 end
 
 RandIntGen{T<:Unsigned}(r::Range1{T}) = length(r) == 0 ? error("Empty range") : RandIntGen{T,T}(first(r), convert(T, length(r)))
@@ -175,11 +175,10 @@ end
 
 function rand{T<:Integer,U<:Unsigned}(g::RandIntGen{T,U})
     x = rand(U)
-    g.k == 0 && return convert(T, g.a + x)
-    while x >= g.u
+    while x > g.u - 0x1
         x = rand(U)
     end
-    convert(T, g.a + rem(x, g.k))
+    convert(T, g.a + x % (k + (k==0)) + x*(k==0)))
 end
 
 rand{T<:Union(Signed,Unsigned,Bool,Char)}(r::Range1{T}) = rand(RandIntGen(r))
