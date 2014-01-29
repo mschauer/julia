@@ -115,7 +115,11 @@ rand(r::MersenneTwister) = dsfmt_genrand_close_open(r.state)
 
 ## random integers
 
-dsfmt_randui32() = dsfmt_gv_genrand_uint32()
+#dsfmt_randui32() = dsfmt_gv_genrand_uint32()
+pseudo = uint32(0)
+setpseudo(x) = global pseudo = uint32(x)
+
+dsfmt_randui32() = begin global pseudo += 1; pseudo; end
 dsfmt_randui64() = uint64(dsfmt_randui32()) | (uint64(dsfmt_randui32())<<32)
 
 rand(::Type{Uint8})   = uint8(rand(Uint32))
