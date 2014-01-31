@@ -162,8 +162,8 @@ immutable RandIntGen{T<:Integer, U<:Unsigned}
 
     RandIntGen(a::T, k::U) = new(a, k, div(typemax(U),k)*k)
 
-    RandIntGen(a::Uint64, k::Uint64) = new(a, k, div((k >> 32 != 0)*0xfffffffeffffffff + 0x0000000100000000, k)*k)
-    RandIntGen(a::Int64,  k::Uint64) = new(a, k, div((k >> 32 != 0)*0xFFFFFFFeffffffff + 0x0000000100000000, k)*k)
+    RandIntGen(a::Uint64, k::Uint64) = new(a::T, k::U, div((k >> 32 != 0)*0xfffffffeffffffff + 0x0000000100000000, k)*k)
+    RandIntGen(a::Int64,  k::Uint64) = new(a::T, k::U, div((k >> 32 != 0)*0xfffffffeffffffff + 0x0000000100000000, k)*k)
 
 end
 
