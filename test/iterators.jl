@@ -62,6 +62,15 @@ end
 @test length(zip(1:3,product(1:7,cycle(1:3)))) == 3
 @test length(zip(1:3,product(1:7,cycle(1:3)),8)) == 1
 
+# reverse of zips of iterators of unequal length
+@test collect(Iterators.reverse(zip(cycle(1:2), 1:10))) == collect(zip(cycle(2:-1:1), 10:-1:1))
+@test collect(Iterators.reverse(zip(repeated(1), 1:10))) == collect(zip(repeated(1), 10:-1:1))
+@test collect(Iterators.reverse(zip(1:10, 1:10))) == collect(zip(10:-1:1, 10:-1:1))
+
+@test_throws ArgumentError Iterators.reverse(zip(countfrom(1), 1:10))
+@test_throws ArgumentError Iterators.reverse(zip(1:11, 1:10))
+@test_throws ArgumentError Iterators.reverse(zip(cycle(1:3), 1:10))
+
 # rest
 # ----
 let s = "hello"

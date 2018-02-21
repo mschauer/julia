@@ -346,9 +346,27 @@ end
 IteratorSize(::Type{Zip{I1,I2}}) where {I1,I2} = zip_iteratorsize(IteratorSize(I1),IteratorSize(I2))
 IteratorEltype(::Type{Zip{I1,I2}}) where {I1,I2} = and_iteratoreltype(IteratorEltype(I1),IteratorEltype(I2))
 
+function _reversefrom(it, n, ::Union{HasLength,HasShape})
+    length(it) == n && return reverse(it)
+    throw(ArgumentError("Can only reverse iterator of type $(typeof(it)) beginning with its last element"))
+end
+_reversefrom(it, n, ::Any) =  throw(ArgumentError("Iterator of type $(typeof(it)) cannot be reverted beginning with its nth element"))
+
+"""
+    Iterators.reversefrom(itr, n)
+
+Given an iterator `itr`, then `reversefrom(itr, n)` is an iterator over the
+first `n` iterates, but in the reverse order. Most iterator types do not support
+reverse-order iteration starting from an arbitrary iterate.
+"""
+reversefrom(it, n) = _reversefrom(it, n, IteratorSize(it))
+
+reversefrom(z::Zip1, n) = Zip1(reversefrom(z.a, n))
+reversefrom(z::Zip2, n) = Zip2(reversefrom(z.a, n), reversefrom(z.b, n))
+reversefrom(z::Zip, n) = Zip(reversefrom(z.a, n), reversefrom(z.z, n))
+
 reverse(z::Zip1) = Zip1(reverse(z.a))
-reverse(z::Zip2) = Zip2(reverse(z.a), reverse(z.b))
-reverse(z::Zip) = Zip(reverse(z.a), reverse(z.z))
+reverse(z::Union{Zip,Zip2}) = reversefrom(z, length(z))
 
 # filter
 
@@ -670,6 +688,7 @@ end
 done(it::Cycle, state) = state[2]
 
 reverse(it::Cycle) = Cycle(reverse(it.xs))
+reversefrom(it::Cycle, n::Integer) = n % length(it.xs) == 0 ? Cycle(reverse(it.xs)) : throw(ArgumentError("Can only reverse cycle iterator beginning with its last element"))
 
 # Repeated - repeat an object infinitely many times
 
@@ -708,6 +727,7 @@ IteratorSize(::Type{<:Repeated}) = IsInfinite()
 IteratorEltype(::Type{<:Repeated}) = HasEltype()
 
 reverse(it::Union{Repeated,Take{<:Repeated}}) = it
+reversefrom(it::Repeated, n) = it
 
 # Product -- cartesian product of iterators
 struct ProductIterator{T<:Tuple}
