@@ -49,6 +49,9 @@ Standard library changes
 
 * `foldr` and `mapfoldr` now work on any iterator that supports `Iterators.reverse`, not just arrays ([#31781]).
 
+* A 1-d `Zip` iterator (where `Base.IteratorSize`
+is `Base.HasShape{1}()`) with defined length of `n` has now also size of `(n,)` (instead of throwing an error) ([#29927]).
+
 External dependencies
 ---------------------
 
