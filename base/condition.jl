@@ -76,6 +76,9 @@ unlock(c::GenericCondition) = unlock(c.lock)
 trylock(c::GenericCondition) = trylock(c.lock)
 islocked(c::GenericCondition) = islocked(c.lock)
 
+lock(f, c::GenericCondition) = lock(f, c.lock)
+unlock(f, c::GenericCondition) = unlock(f, c.lock)
+
 """
     wait([x])
 
@@ -85,8 +88,8 @@ Block the current task until some event occurs, depending on the type of the arg
 * [`Condition`](@ref): Wait for [`notify`](@ref) on a condition.
 * `Process`: Wait for a process or process chain to exit. The `exitcode` field of a process
   can be used to determine success or failure.
-* [`Task`](@ref): Wait for a `Task` to finish. If the task fails with an exception, the
-  exception is propagated (re-thrown in the task that called `wait`).
+* [`Task`](@ref): Wait for a `Task` to finish. If the task fails with an exception, a
+  `TaskFailedException` (which wraps the failed task) is thrown.
 * [`RawFD`](@ref): Wait for changes on a file descriptor (see the `FileWatching` package).
 
 If no argument is passed, the task blocks for an undefined period. A task can only be
@@ -153,7 +156,7 @@ Create an edge-triggered event source that tasks can wait for. Tasks that call [
 `Condition` are suspended and queued. Tasks are woken up when [`notify`](@ref) is later called on
 the `Condition`. Edge triggering means that only tasks waiting at the time [`notify`](@ref) is
 called can be woken up. For level-triggered notifications, you must keep extra state to keep
-track of whether a notification has happened. The [`Channel`](@ref) and [`Event`](@ref) types do
+track of whether a notification has happened. The [`Channel`](@ref) and [`Threads.Event`](@ref) types do
 this, and can be used for level-triggered events.
 
 This object is NOT thread-safe. See [`Threads.Condition`](@ref) for a thread-safe version.
